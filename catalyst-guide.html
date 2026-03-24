@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThousandEyes Catalyst 9000 Enablement Guide</title>
+<style>
+  :root {
+    --cisco-blue: #049FD9;
+    --dark-blue: #1B3A5C;
+    --accent-green: #6CC04A;
+    --light-bg: #F7F9FB;
+    --card-bg: #FFFFFF;
+    --text: #2D3748;
+    --text-muted: #718096;
+    --border: #E2E8F0;
+    --code-bg: #F0F4F8;
+    --sidebar-w: 280px;
+    --header-h: 64px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: var(--text); background: var(--light-bg); line-height: 1.65; }
+
+  /* ===== HEADER ===== */
+  .site-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); background: var(--dark-blue); z-index: 100; display: flex; align-items: center; padding: 0 24px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+  .site-header .logo { display: flex; align-items: center; gap: 14px; }
+  .site-header .logo-text { color: #fff; font-size: 13px; font-weight: 600; letter-spacing: .3px; text-transform: uppercase; opacity: .85; }
+  .site-header .title { color: #fff; font-size: 18px; font-weight: 700; margin-left: 20px; }
+  .site-header .title span { color: var(--cisco-blue); }
+  .hamburger { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; margin-right: 12px; padding: 4px 8px; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar { position: fixed; top: var(--header-h); left: 0; width: var(--sidebar-w); height: calc(100vh - var(--header-h)); background: #fff; border-right: 1px solid var(--border); overflow-y: auto; z-index: 90; padding: 20px 0; transition: transform .3s ease; }
+  .sidebar-section { padding: 0 16px; margin-bottom: 20px; }
+  .sidebar-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 0 8px; margin-bottom: 8px; }
+  .sidebar a { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; text-decoration: none; color: var(--text); font-size: 13.5px; transition: all .15s; }
+  .sidebar a:hover { background: var(--light-bg); color: var(--cisco-blue); }
+  .sidebar a.active { background: #E8F7FD; color: var(--cisco-blue); font-weight: 600; }
+  .sidebar .phase-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .sidebar .phase-num.p1 { background: #DBEAFE; color: #1E40AF; }
+  .sidebar .phase-num.p2 { background: #E0E7FF; color: #3730A3; }
+  .sidebar .phase-num.p3 { background: #D1FAE5; color: #065F46; }
+  .sidebar .phase-num.p4 { background: #FEF3C7; color: #92400E; }
+  .sidebar .phase-num.p5 { background: #FCE7F3; color: #9D174D; }
+
+  /* Progress bar */
+  .progress-wrap { padding: 16px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+  .progress-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--cisco-blue), var(--accent-green)); border-radius: 3px; transition: width .4s ease; width: 0%; }
+
+  /* ===== MAIN ===== */
+  .main { margin-left: var(--sidebar-w); margin-top: var(--header-h); min-height: calc(100vh - var(--header-h)); }
+  .content { max-width: 880px; margin: 0 auto; padding: 40px 32px 80px; }
+
+  /* ===== PHASE BANNER ===== */
+  .phase-banner { padding: 32px 0 24px; margin-bottom: 24px; border-bottom: 3px solid var(--cisco-blue); }
+  .phase-banner .phase-tag { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; padding: 4px 12px; border-radius: 4px; margin-bottom: 10px; }
+  .phase-banner .phase-tag.p1 { background: #DBEAFE; color: #1E40AF; }
+  .phase-banner .phase-tag.p2 { background: #E0E7FF; color: #3730A3; }
+  .phase-banner .phase-tag.p3 { background: #D1FAE5; color: #065F46; }
+  .phase-banner .phase-tag.p4 { background: #FEF3C7; color: #92400E; }
+  .phase-banner .phase-tag.p5 { background: #FCE7F3; color: #9D174D; }
+  .phase-banner h1 { font-size: 28px; color: var(--dark-blue); margin-bottom: 6px; }
+  .phase-banner p { color: var(--text-muted); font-size: 15px; }
+
+  /* ===== SECTIONS ===== */
+  h2 { font-size: 21px; color: var(--dark-blue); margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 17px; color: var(--cisco-blue); margin: 24px 0 10px; }
+  p, li { font-size: 15px; line-height: 1.7; }
+  p { margin-bottom: 12px; }
+  ul, ol { margin: 8px 0 16px 24px; }
+  li { margin-bottom: 6px; }
+  a { color: var(--cisco-blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  strong { font-weight: 600; }
+
+  /* ===== CARDS ===== */
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+
+  /* ===== CODE ===== */
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; overflow-x: auto; margin: 12px 0 16px; position: relative; }
+  pre code { font-family: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace; font-size: 13px; color: #1A202C; line-height: 1.6; }
+  .copy-btn { position: absolute; top: 8px; right: 8px; background: var(--dark-blue); color: #fff; border: none; border-radius: 4px; padding: 4px 10px; font-size: 11px; cursor: pointer; opacity: .7; transition: opacity .15s; }
+  .copy-btn:hover { opacity: 1; }
+  code:not(pre code) { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 13.5px; font-family: "SF Mono", Consolas, monospace; }
+
+  /* ===== TABLES ===== */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 14px; }
+  thead th { background: var(--dark-blue); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 13px; }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tbody tr:nth-child(even) { background: var(--light-bg); }
+  tbody tr:hover { background: #EBF8FF; }
+
+  /* ===== CALLOUTS ===== */
+  .callout { border-radius: 8px; padding: 16px 20px; margin: 16px 0; display: flex; gap: 12px; }
+  .callout .icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .callout-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .callout-body { font-size: 14px; }
+  .callout.tip { background: #F0FFF4; border-left: 4px solid var(--accent-green); }
+  .callout.tip .callout-title { color: #276749; }
+  .callout.note { background: #EBF8FF; border-left: 4px solid var(--cisco-blue); }
+  .callout.note .callout-title { color: var(--dark-blue); }
+  .callout.warn { background: #FFFBEB; border-left: 4px solid #F59E0B; }
+  .callout.warn .callout-title { color: #92400E; }
+
+  /* ===== CHECKLIST ===== */
+  .checklist { list-style: none; margin-left: 0; padding: 0; }
+  .checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist input[type="checkbox"] { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--accent-green); cursor: pointer; flex-shrink: 0; }
+
+  /* ===== STEP INDICATORS ===== */
+  .step { display: flex; gap: 16px; margin: 20px 0; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--cisco-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+  .step-content { flex: 1; }
+  .step-content h4 { font-size: 15px; color: var(--dark-blue); margin-bottom: 4px; }
+  .step-content p { font-size: 14px; color: var(--text); margin-bottom: 6px; }
+
+  /* ===== TABS ===== */
+  .tabs { display: flex; gap: 0; margin: 16px 0 0; border-bottom: 2px solid var(--border); }
+  .tab-btn { padding: 10px 20px; background: none; border: none; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
+  .tab-btn:hover { color: var(--cisco-blue); }
+  .tab-btn.active { color: var(--cisco-blue); border-bottom-color: var(--cisco-blue); }
+  .tab-panel { display: none; padding: 20px 0; }
+  .tab-panel.active { display: block; }
+
+  /* ===== RESOURCE CARDS ===== */
+  .resource-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .resource-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; transition: all .15s; text-decoration: none; color: var(--text); display: block; }
+  .resource-card:hover { border-color: var(--cisco-blue); box-shadow: 0 2px 8px rgba(4,159,217,.12); text-decoration: none; }
+  .resource-card .rc-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--cisco-blue); margin-bottom: 6px; }
+  .resource-card .rc-title { font-size: 14px; font-weight: 600; color: var(--dark-blue); margin-bottom: 4px; }
+  .resource-card .rc-desc { font-size: 12px; color: var(--text-muted); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,.15); }
+    .main { margin-left: 0; }
+    .hamburger { display: block; }
+    .resource-grid { grid-template-columns: 1fr; }
+  }
+  @media print {
+    .sidebar, .site-header, .hamburger, .copy-btn { display: none !important; }
+    .main { margin-left: 0; margin-top: 0; }
+    .content { max-width: 100%; }
+    pre { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#049FD9"/><path d="M20 32 a12 12 0 1 1 24 0 a12 12 0 1 1 -24 0" fill="none" stroke="#fff" stroke-width="3"/><circle cx="32" cy="32" r="4" fill="#fff"/></svg>
+    <span class="logo-text">Cisco</span>
+  </div>
+  <span class="title"><span>ThousandEyes</span> Catalyst 9000 Enablement Guide</span>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Progress</span><span id="progress-pct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Overview</div>
+    <a href="#overview">Overview &amp; Prerequisites</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Workflow</div>
+    <a href="#phase1"><span class="phase-num p1">1</span>Claim Entitlements</a>
+    <a href="#phase2"><span class="phase-num p2">2</span>Share Access with SE</a>
+    <a href="#phase3"><span class="phase-num p3">3</span>Deploy Enterprise Agents</a>
+    <a href="#phase4"><span class="phase-num p4">4</span>Create Monitoring Tests</a>
+    <a href="#phase5"><span class="phase-num p5">5</span>Validate &amp; Next Steps</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Resources</div>
+    <a href="#resources">Links &amp; References</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+<div class="content">
+
+<!-- ========== OVERVIEW ========== -->
+<div id="overview">
+  <div class="phase-banner">
+    <h1>ThousandEyes Catalyst 9000 Enablement Guide</h1>
+    <p>A step-by-step workflow for Cisco Portfolio SEs to activate entitlements, deploy agents, and configure monitoring tests.</p>
+  </div>
+
+  <p>Each Cisco Catalyst 9300/9400 with a <strong>DNA Advantage or Premier</strong> subscription includes ThousandEyes Enterprise Agent test credits. This guide walks you through helping a customer go from entitlement to full monitoring visibility.</p>
+
+  <h2>Entitlement Summary</h2>
+  <p>Each DNA license provides <strong>22 ThousandEyes units per month</strong> (enough for 1 network or web test every 5 minutes from one agent). Units pool across all DNA licenses up to a maximum of 110,000 units/month per customer.</p>
+
+  <div class="callout warn">
+    <span class="icon">&#9888;</span>
+    <div><div class="callout-title">Important</div><div class="callout-body">ThousandEyes <strong>Cloud Agent</strong> access is NOT included in the Cisco DNA license. Cloud agents require a separate ThousandEyes subscription.</div></div>
+  </div>
+
+  <h2>Prerequisites</h2>
+  <table>
+    <thead><tr><th>Requirement</th><th>Details</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Hardware</strong></td><td>Cisco Catalyst 9300 (including 9300L) or 9400 series</td></tr>
+      <tr><td><strong>Licensing</strong></td><td>Active Cisco DNA Advantage or Premier subscription</td></tr>
+      <tr><td><strong>IOS XE Version</strong></td><td>17.3.3+ for Cat 9300 &nbsp;|&nbsp; 17.5.1+ for Cat 9400</td></tr>
+      <tr><td><strong>Smart Account</strong></td><td>Access to Cisco Smart Software Manager (<a href="https://software.cisco.com" target="_blank">software.cisco.com</a>)</td></tr>
+      <tr><td><strong>Network Access</strong></td><td>Outbound TCP 443, DNS resolution, and NTP synchronization</td></tr>
+      <tr><td><strong>VLAN</strong></td><td>Dedicated VLAN for Enterprise Agent traffic (not default VLAN)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========== PHASE 1 ========== -->
+<div id="phase1">
+  <div class="phase-banner">
+    <span class="phase-tag p1">Phase 1</span>
+    <h1>Claim ThousandEyes Entitlements</h1>
+    <p>Activate the customer's ThousandEyes entitlements through Cisco Smart Software Manager.</p>
+  </div>
+
+  <h2>Step 1: Access Cisco Smart Software Manager</h2>
+  <div class="step"><span class="step-num">1</span><div class="step-content"><p>Navigate to <strong><a href="https://software.cisco.com" target="_blank">software.cisco.com</a></strong> and log in with the customer's Cisco.com credentials.</p></div></div>
+  <div class="step"><span class="step-num">2</span><div class="step-content"><p>Click <strong>Manage Licenses</strong> from the Smart Software Licensing section.</p></div></div>
+  <div class="step"><span class="step-num">3</span><div class="step-content"><p>Go to <strong>Inventory &gt; Licenses</strong> in the navigation menu.</p></div></div>
+
+  <h2>Step 2: Locate and Claim Entitlements</h2>
+  <div class="step"><span class="step-num">1</span><div class="step-content"><p>In the licenses list, find the entry labeled <strong>ThousandEyes Enterprise Agent Tests</strong>.</p></div></div>
+  <div class="step"><span class="step-num">2</span><div class="step-content"><p>Select the quantity of DNA licenses to convert for ThousandEyes. The most common approach is to select the full quantity available.</p></div></div>
+  <div class="step"><span class="step-num">3</span><div class="step-content"><p>Review and submit the upgrade request. This triggers automatic provisioning on the ThousandEyes platform.</p></div></div>
+
+  <h2>Step 3: Confirm the ThousandEyes Account</h2>
+  <div class="step"><span class="step-num">1</span><div class="step-content"><p>After submission, ThousandEyes provisions an organization for the customer and deposits entitlements.</p></div></div>
+  <div class="step"><span class="step-num">2</span><div class="step-content"><p>The customer receives a <strong>welcome email</strong> from ThousandEyes at the email address on their Smart Account.</p></div></div>
+  <div class="step"><span class="step-num">3</span><div class="step-content"><p>The customer clicks the confirmation link to set up credentials and access the dashboard.</p></div></div>
+
+  <div class="callout tip">
+    <span class="icon">&#128161;</span>
+    <div><div class="callout-title">SE Tip</div><div class="callout-body">Ensure the customer checks their inbox (and spam folder) for the email associated with their CSSM account. If they have an existing ThousandEyes org, the account admin receives a subscription update notification instead.</div></div>
+  </div>
+</div>
+
+<!-- ========== PHASE 2 ========== -->
+<div id="phase2">
+  <div class="phase-banner">
+    <span class="phase-tag p2">Phase 2</span>
+    <h1>Share Access with Your SE (Optional)</h1>
+    <p>Grant the SE dashboard access for collaborative troubleshooting and configuration.</p>
+  </div>
+
+  <h2>Adding Users to the ThousandEyes Organization</h2>
+  <div class="step"><span class="step-num">1</span><div class="step-content"><p>The customer's ThousandEyes admin navigates to <strong>Account Settings &gt; Users and Roles &gt; Users</strong>.</p></div></div>
+  <div class="step"><span class="step-num">2</span><div class="step-content"><p>Click <strong>+ New Users</strong>.</p></div></div>
+  <div class="step"><span class="step-num">3</span><div class="step-content"><p>Enter the SE's email address. Select an Account Group and assign a role.</p></div></div>
+  <div class="step"><span class="step-num">4</span><div class="step-content"><p>Click <strong>Add New Users</strong>. The SE receives an email invitation.</p></div></div>
+
+  <h3>Role Comparison</h3>
+  <table>
+    <thead><tr><th>Role</th><th>Use Case</th><th>Permissions</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Regular User</strong></td><td>View-only for the SE</td><td>Read-only: tests, results, dashboards</td></tr>
+      <tr><td><strong>Account Admin</strong></td><td>SE helps configure tests</td><td>Manage tests, agents, alerts within account group</td></tr>
+      <tr><td><strong>Organization Admin</strong></td><td>Full collaboration (rare)</td><td>Full admin across all account groups</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <span class="icon">&#128161;</span>
+    <div><div class="callout-title">SE Tip</div><div class="callout-body">For most engagements, request <strong>Account Admin</strong> on a specific account group. This gives you enough access to configure and troubleshoot without full org control. The customer retains ownership.</div></div>
+  </div>
+</div>
+
+<!-- ========== PHASE 3 ========== -->
+<div id="phase3">
+  <div class="phase-banner">
+    <span class="phase-tag p3">Phase 3</span>
+    <h1>Deploy ThousandEyes Enterprise Agents</h1>
+    <p>Install agents on Catalyst 9000 switches via CLI or Catalyst Center.</p>
+  </div>
+
+  <h2>Pre-Deployment Checklist</h2>
+  <div class="card">
+    <ul class="checklist">
+      <li><input type="checkbox"><span>IOS-XE version meets minimum (17.3.3 for Cat 9300, 17.5.1 for Cat 9400)</span></li>
+      <li><input type="checkbox"><span>VLAN identified for Enterprise Agent traffic (not default VLAN)</span></li>
+      <li><input type="checkbox"><span>IP addressing planned (static recommended for production)</span></li>
+      <li><input type="checkbox"><span>Outbound TCP 443, DNS, and NTP confirmed from agent VLAN</span></li>
+      <li><input type="checkbox"><span>Account group token obtained from ThousandEyes: <code>Cloud &amp; Enterprise Agents &gt; Agent Settings &gt; Add New Enterprise Agent &gt; Cisco Application Hosting</code></span></li>
+    </ul>
+  </div>
+
+  <!-- TABS: CLI vs Catalyst Center -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(event, 'tab-cli')">Option A: CLI Deployment</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-cc')">Option B: Catalyst Center</button>
+  </div>
+
+  <!-- CLI TAB -->
+  <div id="tab-cli" class="tab-panel active">
+    <p>Ideal for individual switch deployments or when Catalyst Center is not in use.</p>
+
+    <h3>Step 1: Enable IOx Application Framework</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>configure terminal
+iox
+end</code></pre>
+    <p>Verify IOx is running:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>show iox-service</code></pre>
+
+    <h3>Step 2: Download and Install the Agent Image</h3>
+    <p>If the image is not preloaded, copy to flash and install:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>app-hosting install appid thousandeyes_agent package flash:thousandeyes-enterprise-agent-&lt;version&gt;.cisco.tar</code></pre>
+    <p>Or install directly via HTTPS (if switch has internet access):</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>app-hosting install appid thousandeyes_agent package https://downloads.thousandeyes.com/enterprise-agent/thousandeyes-enterprise-agent-&lt;version&gt;.cisco.tar</code></pre>
+
+    <h3>Step 3: Configure the VLAN and AppGigabitEthernet Interface</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>configure terminal
+!
+vlan 100
+ name TE-Agent-VLAN
+!
+interface GigabitEthernet1/0/1
+ description Uplink for TE Agent
+ switchport access vlan 100
+!
+interface AppGigabitEthernet1/0/1
+ switchport trunk allowed vlan 100
+ switchport mode trunk
+end</code></pre>
+
+    <h3>Step 4: Configure Application Hosting Parameters</h3>
+    <p>Replace placeholder values with the customer's environment details:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>configure terminal
+app-hosting appid thousandeyes_agent
+ app-vnic AppGigabitEthernet trunk
+  vlan 100 guest-interface 0
+   guest-ipaddress 10.10.100.50 netmask 255.255.255.0
+  exit
+ exit
+ app-default-gateway 10.10.100.1 guest-interface 0
+ name-server0 10.10.100.10
+ name-server1 8.8.8.8
+ app-resource docker
+  prepend-pkg-opts
+  run-opts 1 "-e TEAGENT_ACCOUNT_TOKEN=&lt;your-token-here&gt;"
+  run-opts 2 "--hostname Cat9K-Branch-Agent"
+ exit
+ start
+end
+write memory</code></pre>
+
+    <h3>Step 5: Verify the Agent</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>show app-hosting list</code></pre>
+    <p>The output should show the agent in <strong>RUNNING</strong> state. For detailed information:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>show app-hosting detail appid thousandeyes_agent</code></pre>
+    <p>The agent should appear in the ThousandEyes portal under <strong>Cloud &amp; Enterprise Agents &gt; Agent Settings</strong> within a few minutes.</p>
+
+    <div class="callout note">
+      <span class="icon">&#128270;</span>
+      <div><div class="callout-title">Troubleshooting</div><div class="callout-body">If the agent doesn't appear, connect to the container shell: <code>app-hosting connect appid thousandeyes_agent session</code>, then check <code>/var/log/agent/te-agent.log</code>. Common issues: incorrect token, missing DNS resolution, or blocked outbound TCP 443.</div></div>
+    </div>
+  </div>
+
+  <!-- CATALYST CENTER TAB -->
+  <div id="tab-cc" class="tab-panel">
+    <p>Catalyst Center provides a streamlined GUI workflow for deploying agents across multiple switches simultaneously.</p>
+
+    <h3>Step 1: Integrate ThousandEyes with Catalyst Center</h3>
+    <div class="step"><span class="step-num">1</span><div class="step-content"><p>Navigate to <strong>System &gt; Settings &gt; External Services &gt; ThousandEyes Integration</strong>.</p></div></div>
+    <div class="step"><span class="step-num">2</span><div class="step-content"><p>Paste the ThousandEyes Account Group Token from the TE portal.</p></div></div>
+    <div class="step"><span class="step-num">3</span><div class="step-content"><p>Click <strong>Save</strong>. The page confirms integration is enabled.</p></div></div>
+
+    <h3>Step 2: Upload the Agent Image</h3>
+    <div class="step"><span class="step-num">1</span><div class="step-content"><p>Download the Cisco IOS XE Docker Application (.tar) from the ThousandEyes portal &gt; Catalyst Switches tab.</p></div></div>
+    <div class="step"><span class="step-num">2</span><div class="step-content"><p>In Catalyst Center, navigate to <strong>Provision &gt; App Hosting for Switches</strong>.</p></div></div>
+    <div class="step"><span class="step-num">3</span><div class="step-content"><p>Upload the downloaded .tar file.</p></div></div>
+
+    <h3>Step 3: Configure Switch Prerequisites</h3>
+    <div class="step"><span class="step-num">1</span><div class="step-content"><p>Select target switch(es) from inventory.</p></div></div>
+    <div class="step"><span class="step-num">2</span><div class="step-content"><p>Configure the VLAN assignment (Catalyst Center shows available VLANs).</p></div></div>
+    <div class="step"><span class="step-num">3</span><div class="step-content"><p>Ensure AppGigabitEthernet interfaces are trunked on target switches.</p></div></div>
+    <div class="step"><span class="step-num">4</span><div class="step-content"><p>Enable HTTPS on the switch with local authentication for Catalyst Center verification.</p></div></div>
+
+    <h3>Step 4: Deploy the Agent</h3>
+    <div class="step"><span class="step-num">1</span><div class="step-content"><p>From the App Hosting workflow, assign the ThousandEyes app to target switches.</p></div></div>
+    <div class="step"><span class="step-num">2</span><div class="step-content"><p>Configure IP settings, Docker run options (token, hostname, proxy if needed).</p></div></div>
+    <div class="step"><span class="step-num">3</span><div class="step-content"><p>Click <strong>Deploy</strong>. Catalyst Center pushes the config to all selected switches simultaneously.</p></div></div>
+
+    <h3>Step 5: Verify in ThousandEyes Portal</h3>
+    <p>After deployment, verify agents appear under <strong>Cloud &amp; Enterprise Agents &gt; Agent Settings</strong>. Agents should register within a few minutes.</p>
+
+    <div class="callout tip">
+      <span class="icon">&#128161;</span>
+      <div><div class="callout-title">SE Tip</div><div class="callout-body">Ensure the switch hostname in Catalyst Center inventory matches exactly what's configured on the switch. FQDN mismatches are the most common integration issue.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PHASE 4 ========== -->
+<div id="phase4">
+  <div class="phase-banner">
+    <span class="phase-tag p4">Phase 4</span>
+    <h1>Create Monitoring Tests</h1>
+    <p>Configure network, application, and DNS monitoring tests for immediate visibility.</p>
+  </div>
+
+  <p>In the ThousandEyes portal, navigate to <strong>Network &amp; App Synthetics &gt; Test Settings</strong> and click <strong>Start Monitoring</strong> (or use the <strong>Guided Setup</strong> wizard).</p>
+
+  <!-- Test 1 -->
+  <h2>Test 1: Agent-to-Server (Network Path Monitoring)</h2>
+  <div class="card">
+    <h3>Use Case</h3>
+    <p>Monitor the network path from a remote branch (Catalyst 9000 agent) to a data center gateway, WAN concentrator, or cloud endpoint. Provides visibility into packet loss, latency spikes, and routing changes.</p>
+    <h3>Configuration</h3>
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Test Type</td><td>Agent to Server</td><td>Under the Network category</td></tr>
+        <tr><td>Test Name</td><td><em>(descriptive)</em></td><td>e.g., "Branch-NYC to DC-Dallas Network"</td></tr>
+        <tr><td>Target</td><td>Server IP or hostname</td><td>e.g., data center gateway IP or hostname:port</td></tr>
+        <tr><td>Protocol</td><td>TCP (recommended)</td><td>Options: TCP, ICMP, Auto-detect</td></tr>
+        <tr><td>Interval</td><td>5 minutes</td><td>Consumes 1 unit per interval per agent</td></tr>
+        <tr><td>Agents</td><td>Select Cat 9K agent(s)</td><td>Choose from Enterprise Agents list</td></tr>
+        <tr><td>Alerts</td><td>Enable default rules</td><td>Customize thresholds as needed</td></tr>
+      </tbody>
+    </table>
+    <h3>What You Get</h3>
+    <ul>
+      <li><strong>End-to-end metrics:</strong> packet loss, latency, jitter, and path MTU</li>
+      <li><strong>Path Visualization:</strong> traceroute-style map with every hop, IPs, MPLS labels, and ASN info</li>
+      <li><strong>Alerting</strong> on threshold breaches for proactive monitoring</li>
+    </ul>
+  </div>
+
+  <!-- Test 2 -->
+  <h2>Test 2: HTTP Server (Application Monitoring)</h2>
+  <div class="card">
+    <h3>Use Case</h3>
+    <p>Monitor availability and performance of critical web applications (internal ERP, Salesforce, M365 login, etc.) from the branch network perspective.</p>
+    <h3>Configuration</h3>
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Test Type</td><td>HTTP Server</td><td>Under the Web category</td></tr>
+        <tr><td>Test Name</td><td><em>(descriptive)</em></td><td>e.g., "Branch-NYC to Salesforce HTTP"</td></tr>
+        <tr><td>URL</td><td>Full target URL</td><td>e.g., https://login.salesforce.com</td></tr>
+        <tr><td>HTTP Method</td><td>GET (default)</td><td>Use POST for API endpoints</td></tr>
+        <tr><td>Interval</td><td>5 minutes</td><td>Consumes 1 unit per interval per agent</td></tr>
+        <tr><td>Agents</td><td>Select Cat 9K agent(s)</td><td>Choose from Enterprise Agents list</td></tr>
+        <tr><td>Network Measurements</td><td>Enabled</td><td>Adds agent-to-server network metrics</td></tr>
+        <tr><td>SSL Verification</td><td>Enabled (default)</td><td>Disable only for self-signed certs</td></tr>
+        <tr><td>Alerts</td><td>Enable default rules</td><td>Customize thresholds as needed</td></tr>
+      </tbody>
+    </table>
+    <h3>What You Get</h3>
+    <ul>
+      <li><strong>Availability</strong> percentage and HTTP response codes</li>
+      <li><strong>Timing breakdown:</strong> DNS, TCP connect, SSL/TLS, TTFB, total response time</li>
+      <li><strong>Network metrics</strong> (when enabled): latency, loss, jitter, path visualization</li>
+      <li><strong>Content verification</strong> (optional): validate expected response content</li>
+    </ul>
+  </div>
+
+  <!-- Test 3 -->
+  <h2>Test 3: DNS Server (DNS Monitoring)</h2>
+  <div class="card">
+    <h3>Use Case</h3>
+    <p>Monitor internal DNS servers or public DNS to ensure critical domains resolve correctly from branch locations. Valuable for split-horizon DNS or internal-only domains.</p>
+    <h3>Configuration</h3>
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Test Type</td><td>DNS Server</td><td>Under the DNS category</td></tr>
+        <tr><td>Test Name</td><td><em>(descriptive)</em></td><td>e.g., "Branch-NYC DNS Resolution"</td></tr>
+        <tr><td>Domain</td><td>Target domain</td><td>e.g., intranet.company.com</td></tr>
+        <tr><td>DNS Servers</td><td>Server IPs</td><td>e.g., internal DNS IPs or 8.8.8.8</td></tr>
+        <tr><td>Record Type</td><td>A (default)</td><td>Options: AAAA, MX, NS, CNAME, etc.</td></tr>
+        <tr><td>Interval</td><td>5 minutes</td><td>Consumes 1 unit per interval per agent</td></tr>
+        <tr><td>Agents</td><td>Select Cat 9K agent(s)</td><td>Choose from Enterprise Agents list</td></tr>
+        <tr><td>Network Measurements</td><td>Enabled</td><td>Adds network metrics to each DNS server</td></tr>
+        <tr><td>Alerts</td><td>Enable default rules</td><td>Customize thresholds as needed</td></tr>
+      </tbody>
+    </table>
+    <h3>What You Get</h3>
+    <ul>
+      <li><strong>DNS availability</strong> percentage per server</li>
+      <li><strong>Resolution time</strong> for each queried server</li>
+      <li><strong>Resolution results</strong> (returned IPs) for validation</li>
+      <li><strong>Network metrics</strong> to each DNS server (when enabled)</li>
+    </ul>
+  </div>
+
+  <div class="callout tip">
+    <span class="icon">&#128161;</span>
+    <div><div class="callout-title">SE Tip: Starter Package</div><div class="callout-body">Recommend one of each test type as a starter: an agent-to-server test to the data center for WAN visibility, an HTTP server test to their most critical web app, and a DNS test to primary DNS infrastructure. This provides a well-rounded baseline that demonstrates immediate value.</div></div>
+  </div>
+</div>
+
+<!-- ========== PHASE 5 ========== -->
+<div id="phase5">
+  <div class="phase-banner">
+    <span class="phase-tag p5">Phase 5</span>
+    <h1>Validate and Next Steps</h1>
+    <p>Confirm everything is working and plan for expanded monitoring.</p>
+  </div>
+
+  <h2>Validation Checklist</h2>
+  <div class="card">
+    <ul class="checklist" id="validation-checklist">
+      <li><input type="checkbox" onchange="updateProgress()"><span>Agent appears in ThousandEyes portal under Cloud &amp; Enterprise Agents &gt; Agent Settings</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>Agent status shows "Online" with green indicator</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>All configured tests show data within 5-10 minutes of creation</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>Path Visualization displays hop-by-hop data for network and HTTP tests</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>DNS test results show successful resolution with expected IPs</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>Alert rules are active and configured</span></li>
+    </ul>
+  </div>
+
+  <h2>Recommended Next Steps</h2>
+  <ul>
+    <li>Walk the customer through dashboard views (Overview, Path Visualization, Table)</li>
+    <li>Set up a custom dashboard for at-a-glance monitoring</li>
+    <li>Configure alert notifications (email, Slack, PagerDuty, webhooks)</li>
+    <li>Add tests as the customer identifies more critical paths and applications</li>
+    <li>Explore the ThousandEyes / Catalyst Center integration for unified visibility</li>
+    <li>Deploy agents on additional Catalyst switches at other branch sites</li>
+  </ul>
+
+  <h2>Unit Consumption Reference</h2>
+  <table>
+    <thead><tr><th>Test Type</th><th>Units per Round</th><th>Tests at 5-min Interval (22 units/mo)</th></tr></thead>
+    <tbody>
+      <tr><td>Agent-to-Server</td><td>1 unit</td><td>1 test continuously</td></tr>
+      <tr><td>HTTP Server</td><td>1 unit</td><td>1 test continuously</td></tr>
+      <tr><td>HTTP Server + Network</td><td>1 unit</td><td>1 test continuously</td></tr>
+      <tr><td>Page Load</td><td>1 unit</td><td>1 test continuously</td></tr>
+      <tr><td>DNS Server</td><td>1 unit</td><td>1 test continuously</td></tr>
+      <tr><td>Web Transaction</td><td>1 unit</td><td>1 test continuously</td></tr>
+    </tbody>
+  </table>
+  <p><em>22 units/month supports one test every 5 minutes from one agent continuously. Pool units across DNA licenses for more tests or higher frequency.</em></p>
+</div>
+
+<!-- ========== RESOURCES ========== -->
+<div id="resources">
+  <div class="phase-banner">
+    <h1>Resource Links</h1>
+    <p>Official documentation, tutorials, and demos.</p>
+  </div>
+
+  <h2>Activation &amp; Entitlements</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://www.cisco.com/c/dam/m/en_us/customer-experience/collateral/thousandeyes-activation-guide.pdf" target="_blank">
+      <div class="rc-type">PDF</div>
+      <div class="rc-title">ThousandEyes Activation Guide</div>
+      <div class="rc-desc">Official Cisco activation guide for Catalyst 9000 switches</div>
+    </a>
+    <a class="resource-card" href="https://www.thousandeyes.com/resources/activation-guide-catalyst-9000-switches" target="_blank">
+      <div class="rc-type">Web</div>
+      <div class="rc-title">Activation Guide for Catalyst 9000</div>
+      <div class="rc-desc">ThousandEyes resource page for Catalyst activation</div>
+    </a>
+  </div>
+
+  <h2>Agent Deployment</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://www.thousandeyes.com/resources/installing-thousandeyes-enterprise-agent-cisco-catalyst-9000-tutorial" target="_blank">
+      <div class="rc-type">Tutorial</div>
+      <div class="rc-title">Installing Enterprise Agent on Catalyst 9000</div>
+      <div class="rc-desc">Step-by-step installation tutorial</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/global-vantage-points/enterprise-agents/installing/cisco-devices/installation-methods/installing-enterprise-agents-on-cisco-switches-with-docker" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Enterprise Agents on Switches (Docker)</div>
+      <div class="rc-desc">Official ThousandEyes documentation for CLI deployment</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/integration-guides/cisco-catalyst-center" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Catalyst Center Integration Guide</div>
+      <div class="rc-desc">ThousandEyes integration with Catalyst Center</div>
+    </a>
+    <a class="resource-card" href="https://www.thousandeyes.com/resources/service-assurance-thousandeyes-catalyst-9000-tutorial" target="_blank">
+      <div class="rc-type">Tutorial</div>
+      <div class="rc-title">Service Assurance for Catalyst 9000</div>
+      <div class="rc-desc">Tutorial on ThousandEyes service assurance</div>
+    </a>
+  </div>
+
+  <h2>Test Configuration</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/tests" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">ThousandEyes Tests Documentation</div>
+      <div class="rc-desc">Complete test configuration reference</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/getting-started/getting-started-with-cloud-and-enterprise-agent-tests" target="_blank">
+      <div class="rc-type">Getting Started</div>
+      <div class="rc-title">Getting Started with Agent Tests</div>
+      <div class="rc-desc">Beginner guide to creating monitoring tests</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/tests/working-with-test-settings" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Working with Test Settings</div>
+      <div class="rc-desc">Detailed test configuration options</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/tests/dns-tests" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">DNS Tests Documentation</div>
+      <div class="rc-desc">DNS test types and configuration</div>
+    </a>
+  </div>
+
+  <h2>Demos &amp; Video</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://demo.thousandeyes.com/player/?demoId=b8947b96-5544-4762-9042-20cab666ccf2&showGuide=true&showGuidesToolbar=true&showHotspots=true" target="_blank">
+      <div class="rc-type">Interactive Demo</div>
+      <div class="rc-title">ThousandEyes Catalyst Center Demo</div>
+      <div class="rc-desc">Hands-on interactive walkthrough</div>
+    </a>
+    <a class="resource-card" href="https://youtu.be/rTCQh2CbfLA" target="_blank">
+      <div class="rc-type">Video</div>
+      <div class="rc-title">ThousandEyes YouTube Tutorial</div>
+      <div class="rc-desc">Video walkthrough for Catalyst deployment</div>
+    </a>
+    <a class="resource-card" href="https://www.thousandeyes.com/resources/introducing-thousandeyes-service-assurance-catalyst-9000" target="_blank">
+      <div class="rc-type">Overview</div>
+      <div class="rc-title">Introducing Service Assurance for Catalyst 9000</div>
+      <div class="rc-desc">Product overview and capabilities</div>
+    </a>
+  </div>
+
+  <h2>User Management</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/getting-started/getting-started-with-account-setup" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Getting Started with Account Setup</div>
+      <div class="rc-desc">Account setup and user onboarding</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/user-management/rbac" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Role-Based Access Control</div>
+      <div class="rc-desc">Managing user roles and permissions</div>
+    </a>
+  </div>
+</div>
+
+</div><!-- .content -->
+</div><!-- .main -->
+
+<script>
+// Tab switching
+function switchTab(e, tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// Copy code
+function copyCode(btn) {
+  const code = btn.parentElement.querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// Progress tracking from checkboxes
+function updateProgress() {
+  const boxes = document.querySelectorAll('.checklist input[type="checkbox"]');
+  const checked = document.querySelectorAll('.checklist input[type="checkbox"]:checked');
+  const pct = Math.round((checked.length / boxes.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+// Active sidebar link on scroll
+const sections = ['overview','phase1','phase2','phase3','phase4','phase5','resources'];
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY + 120;
+  let current = sections[0];
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= scrollY) current = id;
+  });
+  document.querySelectorAll('.sidebar a').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+
+// Close sidebar on mobile link click
+document.querySelectorAll('.sidebar a').forEach(a => {
+  a.addEventListener('click', () => {
+    if (window.innerWidth <= 900) document.querySelector('.sidebar').classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
