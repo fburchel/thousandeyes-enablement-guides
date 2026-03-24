@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThousandEyes Cisco Router Enablement Guide</title>
+<style>
+  :root {
+    --cisco-blue: #049FD9;
+    --dark-blue: #1B3A5C;
+    --accent-green: #6CC04A;
+    --light-bg: #F7F9FB;
+    --card-bg: #FFFFFF;
+    --text: #2D3748;
+    --text-muted: #718096;
+    --border: #E2E8F0;
+    --code-bg: #F0F4F8;
+    --sidebar-w: 280px;
+    --header-h: 64px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: var(--text); background: var(--light-bg); line-height: 1.65; }
+  .site-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); background: var(--dark-blue); z-index: 100; display: flex; align-items: center; padding: 0 24px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+  .site-header .logo { display: flex; align-items: center; gap: 14px; }
+  .site-header .logo-text { color: #fff; font-size: 13px; font-weight: 600; letter-spacing: .3px; text-transform: uppercase; opacity: .85; }
+  .site-header .title { color: #fff; font-size: 18px; font-weight: 700; margin-left: 20px; }
+  .site-header .title span { color: var(--cisco-blue); }
+  .hamburger { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; margin-right: 12px; padding: 4px 8px; }
+  .sidebar { position: fixed; top: var(--header-h); left: 0; width: var(--sidebar-w); height: calc(100vh - var(--header-h)); background: #fff; border-right: 1px solid var(--border); overflow-y: auto; z-index: 90; padding: 20px 0; transition: transform .3s ease; }
+  .sidebar-section { padding: 0 16px; margin-bottom: 20px; }
+  .sidebar-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 0 8px; margin-bottom: 8px; }
+  .sidebar a { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; text-decoration: none; color: var(--text); font-size: 13.5px; transition: all .15s; }
+  .sidebar a:hover { background: var(--light-bg); color: var(--cisco-blue); }
+  .sidebar a.active { background: #E8F7FD; color: var(--cisco-blue); font-weight: 600; }
+  .sidebar .phase-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .sidebar .phase-num.p1 { background: #DBEAFE; color: #1E40AF; }
+  .sidebar .phase-num.p2 { background: #E0E7FF; color: #3730A3; }
+  .sidebar .phase-num.p3 { background: #D1FAE5; color: #065F46; }
+  .sidebar .phase-num.p4 { background: #FEF3C7; color: #92400E; }
+  .sidebar .phase-num.p5 { background: #FCE7F3; color: #9D174D; }
+  .sidebar .phase-num.p6 { background: #EDE9FE; color: #5B21B6; }
+  .sidebar .phase-num.p7 { background: #FEE2E2; color: #991B1B; }
+  .progress-wrap { padding: 16px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+  .progress-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--cisco-blue), var(--accent-green)); border-radius: 3px; transition: width .4s ease; width: 0%; }
+  .main { margin-left: var(--sidebar-w); margin-top: var(--header-h); min-height: calc(100vh - var(--header-h)); }
+  .content { max-width: 880px; margin: 0 auto; padding: 40px 32px 80px; }
+  .phase-banner { padding: 32px 0 24px; margin-bottom: 24px; border-bottom: 3px solid var(--cisco-blue); }
+  .phase-banner .phase-tag { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; padding: 4px 12px; border-radius: 4px; margin-bottom: 10px; }
+  .phase-banner .phase-tag.p1 { background: #DBEAFE; color: #1E40AF; }
+  .phase-banner .phase-tag.p2 { background: #E0E7FF; color: #3730A3; }
+  .phase-banner .phase-tag.p3 { background: #D1FAE5; color: #065F46; }
+  .phase-banner .phase-tag.p4 { background: #FEF3C7; color: #92400E; }
+  .phase-banner .phase-tag.p5 { background: #FCE7F3; color: #9D174D; }
+  .phase-banner .phase-tag.p6 { background: #EDE9FE; color: #5B21B6; }
+  .phase-banner .phase-tag.p7 { background: #FEE2E2; color: #991B1B; }
+  .phase-banner h1 { font-size: 28px; color: var(--dark-blue); margin-bottom: 6px; }
+  .phase-banner p { color: var(--text-muted); font-size: 15px; }
+  h2 { font-size: 21px; color: var(--dark-blue); margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 17px; color: var(--cisco-blue); margin: 24px 0 10px; }
+  p, li { font-size: 15px; line-height: 1.7; }
+  p { margin-bottom: 12px; }
+  ul, ol { margin: 8px 0 16px 24px; }
+  li { margin-bottom: 6px; }
+  a { color: var(--cisco-blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  strong { font-weight: 600; }
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; overflow-x: auto; margin: 12px 0 16px; position: relative; }
+  pre code { font-family: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace; font-size: 13px; color: #1A202C; line-height: 1.6; }
+  .copy-btn { position: absolute; top: 8px; right: 8px; background: var(--dark-blue); color: #fff; border: none; border-radius: 4px; padding: 4px 10px; font-size: 11px; cursor: pointer; opacity: .7; transition: opacity .15s; }
+  .copy-btn:hover { opacity: 1; }
+  code:not(pre code) { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 13.5px; font-family: "SF Mono", Consolas, monospace; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 14px; }
+  thead th { background: var(--dark-blue); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 13px; }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tbody tr:nth-child(even) { background: var(--light-bg); }
+  tbody tr:hover { background: #EBF8FF; }
+  .callout { border-radius: 8px; padding: 16px 20px; margin: 16px 0; display: flex; gap: 12px; }
+  .callout .icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .callout-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .callout-body { font-size: 14px; }
+  .callout.tip { background: #F0FFF4; border-left: 4px solid var(--accent-green); }
+  .callout.tip .callout-title { color: #276749; }
+  .callout.note { background: #EBF8FF; border-left: 4px solid var(--cisco-blue); }
+  .callout.note .callout-title { color: var(--dark-blue); }
+  .callout.warn { background: #FFFBEB; border-left: 4px solid #F59E0B; }
+  .callout.warn .callout-title { color: #92400E; }
+  .checklist { list-style: none; margin-left: 0; padding: 0; }
+  .checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist input[type="checkbox"] { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--accent-green); cursor: pointer; flex-shrink: 0; }
+  .step { display: flex; gap: 16px; margin: 20px 0; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--cisco-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+  .step-content { flex: 1; }
+  .step-content h4 { font-size: 15px; color: var(--dark-blue); margin-bottom: 4px; }
+  .step-content p { font-size: 14px; color: var(--text); margin-bottom: 6px; }
+  .tabs { display: flex; gap: 0; margin: 16px 0 0; border-bottom: 2px solid var(--border); }
+  .tab-btn { padding: 10px 20px; background: none; border: none; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
+  .tab-btn:hover { color: var(--cisco-blue); }
+  .tab-btn.active { color: var(--cisco-blue); border-bottom-color: var(--cisco-blue); }
+  .tab-panel { display: none; padding: 20px 0; }
+  .tab-panel.active { display: block; }
+  .resource-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .resource-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; transition: all .15s; text-decoration: none; color: var(--text); display: block; }
+  .resource-card:hover { border-color: var(--cisco-blue); box-shadow: 0 2px 8px rgba(4,159,217,.12); text-decoration: none; }
+  .resource-card .rc-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--cisco-blue); margin-bottom: 6px; }
+  .resource-card .rc-title { font-size: 14px; font-weight: 600; color: var(--dark-blue); margin-bottom: 4px; }
+  .resource-card .rc-desc { font-size: 12px; color: var(--text-muted); }
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,.15); }
+    .main { margin-left: 0; }
+    .hamburger { display: block; }
+    .resource-grid { grid-template-columns: 1fr; }
+  }
+  @media print {
+    .sidebar, .site-header, .hamburger, .copy-btn { display: none !important; }
+    .main { margin-left: 0; margin-top: 0; }
+    .content { max-width: 100%; }
+    pre { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#049FD9"/><path d="M20 32 a12 12 0 1 1 24 0 a12 12 0 1 1 -24 0" fill="none" stroke="#fff" stroke-width="3"/><circle cx="32" cy="32" r="4" fill="#fff"/></svg>
+    <span class="logo-text">Cisco</span>
+  </div>
+  <span class="title"><span>ThousandEyes</span> Cisco Router Enablement Guide</span>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Progress</span><span id="progress-pct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Overview</div>
+    <a href="#overview">Overview &amp; Prerequisites</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Workflow</div>
+    <a href="#phase1"><span class="phase-num p1">1</span>Share Access with SE</a>
+    <a href="#phase2"><span class="phase-num p2">2</span>Deploy Enterprise Agents</a>
+    <a href="#phase3"><span class="phase-num p3">3</span>Traffic Forwarder Setup</a>
+    <a href="#phase4"><span class="phase-num p4">4</span>Recommended Testing</a>
+    <a href="#phase5"><span class="phase-num p5">5</span>SD-WAN Overlay &amp; Underlay</a>
+    <a href="#phase6"><span class="phase-num p6">6</span>Validate &amp; Next Steps</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Resources</div>
+    <a href="#resources">Links &amp; References</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+<div class="content">
+
+<!-- PLACEHOLDER: SECTIONS WILL BE ADDED INCREMENTALLY -->
+<div id="overview">
+  <div class="phase-banner">
+    <h1>ThousandEyes Cisco Router Enablement Guide</h1>
+    <p>A step-by-step workflow for Cisco SEs to deploy ThousandEyes Enterprise Agents on Cisco routers via CLI or SD-WAN Manager, configure Traffic Insights forwarding, and set up comprehensive branch-to-cloud monitoring.</p>
+  </div>
+
+  <p>Cisco routers running IOS-XE (Catalyst 8100/8200/8300/8400/8500 series, ISR 1100X/4000, ASR 1000) support native ThousandEyes Enterprise Agent deployment through the Application Hosting framework. When combined with Cisco SD-WAN, this enables deep visibility into both overlay and underlay network performance from every branch site.</p>
+
+  <h2>What This Guide Covers</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Enterprise Agent Deployment</strong> on Cisco routers via CLI or SD-WAN Manager workflows</li>
+      <li><strong>Traffic Insights Configuration</strong> using the router as a traffic forwarder</li>
+      <li><strong>Recommended Test Configurations</strong> for branch-to-data-center and branch-to-cloud monitoring</li>
+      <li><strong>SD-WAN Overlay &amp; Underlay Monitoring</strong> for full-stack WAN visibility</li>
+    </ul>
+  </div>
+
+  <h2>Prerequisites</h2>
+  <table>
+    <thead><tr><th>Requirement</th><th>Details</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Hardware</strong></td><td>Catalyst 8100/8200/8300/8400/8500, ISR 1100X, ISR 4000, or ASR 1000 series routers (see full model list below)</td></tr>
+      <tr><td><strong>IOS-XE Version</strong></td><td>Varies by platform — see Supported Platforms table below for per-model minimums</td></tr>
+      <tr><td><strong>SD-WAN Manager</strong></td><td>Version 20.12+ for full ThousandEyes workflow integration (if using SD-WAN deployment)</td></tr>
+      <tr><td><strong>ThousandEyes Account</strong></td><td>Active ThousandEyes organization with available Enterprise Agent licenses</td></tr>
+      <tr><td><strong>Account Group Token</strong></td><td>Obtained from ThousandEyes: <code>Cloud &amp; Enterprise Agents &gt; Agent Settings &gt; Add New Enterprise Agent</code></td></tr>
+      <tr><td><strong>Network Access</strong></td><td>Outbound TCP 443 to <code>*.thousandeyes.com</code>, DNS resolution, and NTP synchronization</td></tr>
+      <tr><td><strong>Router Resources</strong></td><td>RAM and storage requirements vary by platform (8 GB RAM minimum for most models). Consult the <a href="https://docs.thousandeyes.com/product-documentation/global-vantage-points/enterprise-agents/installing/cisco-devices" target="_blank">Cisco device installation documentation</a> for per-model details.</td></tr>
+      <tr><td><strong>Management Interface</strong></td><td>VirtualPortGroup (VPG) interface for agent connectivity (CLI) or ThousandEyes VPN in SD-WAN</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout note">
+    <span class="icon">&#128270;</span>
+    <div><div class="callout-title">Router vs. Switch Deployment</div><div class="callout-body">Unlike Catalyst 9000 switches that use AppGigabitEthernet interfaces, Cisco routers use <strong>VirtualPortGroup (VPG)</strong> interfaces for application hosting connectivity. The agent runs as a container inside the IOS-XE Application Hosting framework using KVM or Docker depending on platform and agent version.</div></div>
+  </div>
+
+  <h2>Supported Platforms</h2>
+
+  <h3>Catalyst Routers</h3>
+  <table>
+    <thead><tr><th>Model</th><th>Architecture</th><th>Min IOS-XE</th><th>Storage</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Catalyst 8151</strong></td><td>aarch64</td><td>17.18.1</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8161</strong></td><td>aarch64</td><td>17.18.1</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8200</strong></td><td>x86_64</td><td>17.6.1</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8200L</strong></td><td>x86_64</td><td>17.6.1</td><td>8 GB RAM, 8 GB Flash required</td></tr>
+      <tr><td><strong>Catalyst 8231</strong></td><td>aarch64</td><td>17.18.1</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8235</strong></td><td>aarch64</td><td>17.18.1</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8300</strong></td><td>x86_64</td><td>17.6.1</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8355</strong></td><td>aarch64</td><td>17.18.1</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8375</strong></td><td>aarch64</td><td>17.15.3*</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8455</strong></td><td>aarch64</td><td>17.15.3*</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8475</strong></td><td>aarch64</td><td>17.15.3*</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8500</strong></td><td>x86_64</td><td>17.8.1</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8500L</strong></td><td>x86_64</td><td>17.8.1</td><td>8 GB RAM, 8 GB Flash required</td></tr>
+      <tr><td><strong>Catalyst 8550</strong></td><td>x86_64</td><td>17.15.3*</td><td>16 GB M.2 SSD (default)</td></tr>
+      <tr><td><strong>Catalyst 8570</strong></td><td>x86_64</td><td>17.15.3*</td><td>16 GB M.2 SSD (default)</td></tr>
+    </tbody>
+  </table>
+  <p><em>* IOS-XE 17.16 is NOT supported for these models. Use 17.15.3 or 17.17+.</em></p>
+
+  <h3>Integrated Services Routers (ISR)</h3>
+  <table>
+    <thead><tr><th>Model</th><th>Architecture</th><th>Min IOS-XE</th><th>Storage</th></tr></thead>
+    <tbody>
+      <tr><td><strong>ISR 1100X-6G</strong></td><td>x86_64</td><td>17.7</td><td>16 GB Flash</td></tr>
+      <tr><td><strong>ISR 1111X</strong></td><td>aarch64</td><td>17.16.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 1121X</strong></td><td>aarch64</td><td>17.16.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 1126X</strong></td><td>aarch64</td><td>17.16.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 1127X</strong></td><td>aarch64</td><td>17.16.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 1131X</strong></td><td>aarch64</td><td>17.16.1</td><td>16 GB Flash</td></tr>
+      <tr><td><strong>ISR 1161X</strong></td><td>aarch64</td><td>17.16.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 4221X</strong></td><td>x86_64</td><td>17.6.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 4321</strong></td><td>x86_64</td><td>17.6.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 4331</strong></td><td>x86_64</td><td>17.6.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 4351</strong></td><td>x86_64</td><td>17.6.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 4400</strong></td><td>x86_64</td><td>17.6.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 4431</strong></td><td>x86_64</td><td>17.6.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 4451</strong></td><td>x86_64</td><td>17.6.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ISR 4461</strong></td><td>x86_64</td><td>17.6.1</td><td>8 GB Flash</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Aggregation Services Routers (ASR)</h3>
+  <table>
+    <thead><tr><th>Model</th><th>Architecture</th><th>Min IOS-XE</th><th>Storage</th></tr></thead>
+    <tbody>
+      <tr><td><strong>ASR 1001-X</strong></td><td>x86_64</td><td>17.8.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ASR 1001-HX</strong></td><td>x86_64</td><td>17.8.1</td><td>32 GB bootflash (built-in)</td></tr>
+      <tr><td><strong>ASR 1002-X</strong></td><td>x86_64</td><td>17.8.1</td><td>8 GB Flash</td></tr>
+      <tr><td><strong>ASR 1002-HX</strong></td><td>x86_64</td><td>17.8.1</td><td>32 GB bootflash (built-in)</td></tr>
+      <tr><td><strong>ASR 1006 (RP2)</strong></td><td>x86_64</td><td>17.8.1</td><td>8 GB Flash + 80 GB HDD</td></tr>
+      <tr><td><strong>ASR 1006-X (RP3)</strong></td><td>x86_64</td><td>17.8.1</td><td>8 GB Flash + 100 GB SSD</td></tr>
+      <tr><td><strong>ASR 1009-X (RP3)</strong></td><td>x86_64</td><td>17.8.1</td><td>8 GB Flash + 100 GB SSD</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <span class="icon">&#9888;</span>
+    <div><div class="callout-title">Important: Not All ISR 1100 Models Are Supported</div><div class="callout-body">Only the <strong>ISR 1100X family</strong> (models ending in "X") supports ThousandEyes Enterprise Agent deployment. Standard ISR 1100 models without the X designation are <strong>not supported</strong>. The Catalyst 8000v virtual router is also <strong>not supported</strong> for agent deployment. Always verify your specific model against the <a href="https://docs.thousandeyes.com/product-documentation/global-vantage-points/enterprise-agents/installing/cisco-devices" target="_blank">official Cisco device support matrix</a>.</div></div>
+  </div>
+</div>
+<div id="phase1">
+  <div class="phase-banner">
+    <span class="phase-tag p1">Phase 1</span>
+    <h1>Share Access with Your SE (Optional)</h1>
+    <p>Grant the SE dashboard access for collaborative troubleshooting and configuration.</p>
+  </div>
+
+  <h2>Adding Users to the ThousandEyes Organization</h2>
+  <div class="step"><span class="step-num">1</span><div class="step-content"><p>The customer's ThousandEyes admin navigates to <strong>Account Settings &gt; Users and Roles &gt; Users</strong>.</p></div></div>
+  <div class="step"><span class="step-num">2</span><div class="step-content"><p>Click <strong>+ New Users</strong>.</p></div></div>
+  <div class="step"><span class="step-num">3</span><div class="step-content"><p>Enter the SE's email address. Select an Account Group and assign a role.</p></div></div>
+  <div class="step"><span class="step-num">4</span><div class="step-content"><p>Click <strong>Add New Users</strong>. The SE receives an email invitation.</p></div></div>
+
+  <h3>Role Comparison</h3>
+  <table>
+    <thead><tr><th>Role</th><th>Use Case</th><th>Permissions</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Regular User</strong></td><td>View-only for the SE</td><td>Read-only: tests, results, dashboards</td></tr>
+      <tr><td><strong>Account Admin</strong></td><td>SE helps configure tests</td><td>Manage tests, agents, alerts within account group</td></tr>
+      <tr><td><strong>Organization Admin</strong></td><td>Full collaboration (rare)</td><td>Full admin across all account groups</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <span class="icon">&#128161;</span>
+    <div><div class="callout-title">SE Tip</div><div class="callout-body">For most engagements, request <strong>Account Admin</strong> on a specific account group. This gives you enough access to configure and troubleshoot without full org control. The customer retains ownership.</div></div>
+  </div>
+</div>
+<div id="phase2">
+  <div class="phase-banner">
+    <span class="phase-tag p2">Phase 2</span>
+    <h1>Deploy ThousandEyes Enterprise Agents</h1>
+    <p>Install agents on Cisco routers via CLI or SD-WAN Manager.</p>
+  </div>
+
+  <h2>Pre-Deployment Checklist</h2>
+  <div class="card">
+    <ul class="checklist">
+      <li><input type="checkbox" onchange="updateProgress()"><span>IOS-XE version meets minimum for your specific model (see Supported Platforms table in Overview)</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>Router has sufficient RAM (8 GB minimum) and storage for application hosting</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>Outbound TCP 443 to <code>*.thousandeyes.com</code> confirmed</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>DNS resolution and NTP synchronization verified on the router</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>Account group token obtained from ThousandEyes portal</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>VirtualPortGroup IP addressing planned (for CLI deployment)</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>For SD-WAN: ThousandEyes VPN configured in SD-WAN Manager</span></li>
+    </ul>
+  </div>
+
+  <!-- TABS: CLI vs SD-WAN Manager -->
+  <div class="tabs" id="deploy-tabs">
+    <button class="tab-btn active" onclick="switchTab(event, 'tab-cli')">Option A: CLI Deployment</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-sdwan')">Option B: SD-WAN Manager</button>
+  </div>
+
+  <!-- CLI TAB -->
+  <div id="tab-cli" class="tab-panel active">
+    <p>Ideal for standalone router deployments or environments without SD-WAN Manager.</p>
+
+    <h3>Step 1: Enable IOx Application Hosting Framework</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>configure terminal
+iox
+end</code></pre>
+    <p>Wait approximately 60 seconds, then verify IOx is running:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>show iox-service</code></pre>
+    <p>All IOx services should show as <strong>Running</strong>.</p>
+
+    <h3>Step 2: Configure VirtualPortGroup Interface</h3>
+    <p>The VirtualPortGroup (VPG) interface provides network connectivity between IOS-XE and the hosted application container:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>configure terminal
+!
+interface VirtualPortGroup0
+ ip address 192.168.2.1 255.255.255.252
+ no shutdown
+!
+end</code></pre>
+
+    <div class="callout note">
+      <span class="icon">&#128270;</span>
+      <div><div class="callout-title">VPG Addressing</div><div class="callout-body">Use a /30 subnet for the VPG link. The router gets .1, the agent container gets .2. The agent's default gateway points to the VPG router address. The router handles routing for the agent — NAT is <strong>not required</strong> on the VPG interface for the agent to reach the internet. Only configure NAT if your specific topology requires it (e.g., the VPG subnet is not included in routing tables upstream).</div></div>
+    </div>
+
+    <h3>Step 3: Configure Application Hosting</h3>
+    <p>Replace placeholder values with the customer's environment details:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>configure terminal
+app-hosting appid thousandeyes_agent
+ app-vnic gateway0 virtualportgroup 0 guest-interface 0
+  guest-ipaddress 192.168.2.2 netmask 255.255.255.252
+ exit
+ app-default-gateway 192.168.2.1 guest-interface 0
+ name-server0 8.8.8.8
+ name-server1 8.8.4.4
+ app-resource docker
+  prepend-pkg-opts
+  run-opts 1 "-e TEAGENT_ACCOUNT_TOKEN=&lt;your-token-here&gt;"
+  run-opts 2 "--hostname Router-Branch01-Agent"
+ exit
+end</code></pre>
+
+    <h3>Step 4: Download and Install the Agent Image</h3>
+    <p>Install directly via HTTPS (if the router has internet access):</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>app-hosting install appid thousandeyes_agent package https://downloads.thousandeyes.com/enterprise-agent/thousandeyes-enterprise-agent-4.0.cat9k.tar</code></pre>
+    <p>Or copy to flash first, then install locally:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>copy https://downloads.thousandeyes.com/enterprise-agent/thousandeyes-enterprise-agent-4.0.cat9k.tar flash:
+app-hosting install appid thousandeyes_agent package flash:thousandeyes-enterprise-agent-4.0.cat9k.tar</code></pre>
+
+    <h3>Step 5: Activate and Start the Agent</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>app-hosting activate appid thousandeyes_agent
+app-hosting start appid thousandeyes_agent</code></pre>
+
+    <h3>Step 6: Verify the Agent</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>show app-hosting list</code></pre>
+    <p>The output should show the agent in <strong>RUNNING</strong> state. For detailed status:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>show app-hosting detail appid thousandeyes_agent</code></pre>
+    <p>The agent should appear in the ThousandEyes portal under <strong>Cloud &amp; Enterprise Agents &gt; Agent Settings</strong> within 2-5 minutes.</p>
+
+    <div class="callout note">
+      <span class="icon">&#128270;</span>
+      <div><div class="callout-title">Troubleshooting</div><div class="callout-body">If the agent doesn't appear: connect to the container shell with <code>app-hosting connect appid thousandeyes_agent session</code>, then check <code>/var/log/agent/te-agent.log</code>. Common issues include: incorrect token, blocked outbound TCP 443, DNS resolution failure, or insufficient router resources.</div></div>
+    </div>
+  </div>
+
+  <!-- SD-WAN MANAGER TAB -->
+  <div id="tab-sdwan" class="tab-panel">
+    <p>SD-WAN Manager (formerly vManage) provides a centralized workflow for deploying ThousandEyes agents across multiple routers in your SD-WAN fabric simultaneously.</p>
+
+    <h3>Step 1: Configure ThousandEyes Integration in SD-WAN Manager</h3>
+    <div class="step"><span class="step-num">1</span><div class="step-content"><p>Log into <strong>SD-WAN Manager</strong> and navigate to <strong>Administration &gt; Settings &gt; ThousandEyes</strong>.</p></div></div>
+    <div class="step"><span class="step-num">2</span><div class="step-content"><p>Paste the <strong>Account Group Token</strong> from the ThousandEyes portal (<code>Cloud &amp; Enterprise Agents &gt; Agent Settings &gt; Add New Enterprise Agent &gt; Cisco Application Hosting</code>).</p></div></div>
+    <div class="step"><span class="step-num">3</span><div class="step-content"><p>Click <strong>Save</strong>. SD-WAN Manager validates the token and confirms integration is active.</p></div></div>
+
+    <h3>Step 2: Create a ThousandEyes Feature Template (or Profile Parcel)</h3>
+    <div class="step"><span class="step-num">1</span><div class="step-content"><p>Navigate to <strong>Configuration &gt; Templates</strong> (classic) or <strong>Configuration &gt; Feature Profiles</strong> (20.12+).</p></div></div>
+    <div class="step"><span class="step-num">2</span><div class="step-content"><p>Create or edit a <strong>ThousandEyes Agent</strong> feature template/parcel.</p></div></div>
+    <div class="step"><span class="step-num">3</span><div class="step-content"><p>Configure the following parameters:</p>
+      <table>
+        <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Agent Name / Hostname</td><td>Device-specific variable</td><td>Use <code>{{device_hostname}}-TE</code> for unique naming</td></tr>
+          <tr><td>VPN for Agent</td><td>VPN 0 (transport) or VPN 1 (service)</td><td>VPN 0 for direct internet; VPN 1 if agent needs to reach internal targets</td></tr>
+          <tr><td>Account Group Token</td><td>Auto-populated from Step 1</td><td>Pre-filled from SD-WAN Manager integration settings</td></tr>
+          <tr><td>Agent IP / Subnet</td><td>Static or DHCP</td><td>Static recommended for production deployments</td></tr>
+          <tr><td>Default Gateway</td><td>VPG router-side IP</td><td>Auto-configured in SD-WAN workflow</td></tr>
+          <tr><td>DNS Server(s)</td><td>Customer DNS or public DNS</td><td>e.g., 8.8.8.8, 208.67.222.222</td></tr>
+          <tr><td>Proxy (optional)</td><td>Proxy URL and port</td><td>Only if direct internet is unavailable</td></tr>
+        </tbody>
+      </table>
+    </div></div>
+
+    <h3>Step 3: Attach Template to Device(s) and Push</h3>
+    <div class="step"><span class="step-num">1</span><div class="step-content"><p>Attach the ThousandEyes feature template to the device template for target routers.</p></div></div>
+    <div class="step"><span class="step-num">2</span><div class="step-content"><p>Fill in device-specific variables (agent hostname, IP addressing).</p></div></div>
+    <div class="step"><span class="step-num">3</span><div class="step-content"><p>Preview the configuration diff to verify accuracy.</p></div></div>
+    <div class="step"><span class="step-num">4</span><div class="step-content"><p>Click <strong>Deploy</strong>. SD-WAN Manager pushes the configuration and agent image to all selected routers.</p></div></div>
+
+    <h3>Step 4: Verify Deployment</h3>
+    <p>In SD-WAN Manager, navigate to <strong>Monitor &gt; ThousandEyes</strong> to confirm agents are online. You can also verify in the ThousandEyes portal under <strong>Cloud &amp; Enterprise Agents &gt; Agent Settings</strong>.</p>
+
+    <div class="callout tip">
+      <span class="icon">&#128161;</span>
+      <div><div class="callout-title">SE Tip: Bulk Deployment</div><div class="callout-body">SD-WAN Manager allows you to deploy ThousandEyes agents to hundreds of routers simultaneously using a single template push. Use device-specific variables for hostname and IP to ensure unique agent identities. This is the recommended approach for large-scale SD-WAN fabrics.</div></div>
+    </div>
+
+    <div class="callout warn">
+      <span class="icon">&#9888;</span>
+      <div><div class="callout-title">VPN Selection Matters</div><div class="callout-body">Choosing <strong>VPN 0 (transport)</strong> gives the agent direct internet access for testing external SaaS/cloud targets. Choosing <strong>VPN 1 (service side)</strong> places the agent in the enterprise network, ideal for testing internal applications and data center connectivity. Consider deploying agents in both VPNs for full coverage at critical sites.</div></div>
+    </div>
+  </div>
+</div>
+<div id="phase3">
+  <div class="phase-banner">
+    <span class="phase-tag p3">Phase 3</span>
+    <h1>Traffic Forwarder for Traffic Insights</h1>
+    <p>Configure the router and ThousandEyes agent as a traffic forwarder to gain deep visibility into real user traffic flows.</p>
+  </div>
+
+  <p>ThousandEyes Traffic Insights analyzes actual network traffic (NetFlow/IPFIX) to provide visibility into traffic patterns, top talkers, and application usage. By configuring the Cisco router as a traffic forwarder, you export flow data to ThousandEyes for analysis — complementing the active synthetic tests with passive, real-traffic intelligence.</p>
+
+  <h2>How Traffic Insights Works</h2>
+  <div class="card">
+    <ul>
+      <li>The router collects <strong>NetFlow v9 or IPFIX</strong> data from WAN-facing interfaces</li>
+      <li>Flow records are exported to the <strong>ThousandEyes Enterprise Agent</strong> running on the router (or a nearby collector)</li>
+      <li>The agent processes and forwards summarized flow telemetry to the ThousandEyes cloud</li>
+      <li>ThousandEyes presents traffic analytics in the <strong>Traffic Insights</strong> dashboard</li>
+    </ul>
+  </div>
+
+  <h2>Option A: Configure via SD-WAN Manager</h2>
+  <p>For SD-WAN deployments, Traffic Insights is configured through SD-WAN Manager using traffic monitoring policies.</p>
+
+  <div class="step"><span class="step-num">1</span><div class="step-content"><p>In SD-WAN Manager, navigate to <strong>Configuration &gt; Policies &gt; Traffic Policy</strong> (or <strong>Configuration &gt; Feature Profiles &gt; Traffic Monitoring</strong> in 20.12+).</p></div></div>
+  <div class="step"><span class="step-num">2</span><div class="step-content"><p>Create or edit a <strong>Traffic Monitoring</strong> policy and enable <strong>ThousandEyes Traffic Monitor</strong>.</p></div></div>
+  <div class="step"><span class="step-num">3</span><div class="step-content"><p>Select the <strong>VPN(s)</strong> to monitor (typically VPN 0 for transport-side traffic or VPN 1 for service-side).</p></div></div>
+  <div class="step"><span class="step-num">4</span><div class="step-content"><p>The traffic monitor automatically targets the local ThousandEyes Enterprise Agent as the flow collector.</p></div></div>
+  <div class="step"><span class="step-num">5</span><div class="step-content"><p>Apply the policy to the target device template and push to routers.</p></div></div>
+
+  <div class="callout note">
+    <span class="icon">&#128270;</span>
+    <div><div class="callout-title">SD-WAN Traffic Monitor</div><div class="callout-body">In SD-WAN mode, the traffic monitor leverages the cflowd (NetFlow) infrastructure already built into the SD-WAN data plane. No additional flow exporter configuration is needed on the router — SD-WAN Manager handles the full configuration via policy.</div></div>
+  </div>
+
+  <h2>Option B: Configure via CLI (Non-SD-WAN)</h2>
+  <p>For standalone IOS-XE routers, configure NetFlow export manually to the local ThousandEyes agent.</p>
+
+  <h3>Step 1: Configure the Flow Exporter</h3>
+  <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>configure terminal
+!
+flow exporter TE-EXPORTER
+ destination 192.168.2.2
+ source VirtualPortGroup0
+ transport udp 2055
+ export-protocol netflow-v9
+ template data timeout 60
+!
+end</code></pre>
+  <p>The destination IP (<code>192.168.2.2</code>) is the ThousandEyes agent's IP on the VPG interface configured during agent deployment.</p>
+
+  <h3>Step 2: Configure the Flow Monitor</h3>
+  <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>configure terminal
+!
+flow record TE-RECORD
+ match ipv4 source address
+ match ipv4 destination address
+ match ipv4 protocol
+ match transport source-port
+ match transport destination-port
+ match interface input
+ collect counter bytes long
+ collect counter packets long
+ collect timestamp sys-uptime first
+ collect timestamp sys-uptime last
+ collect interface output
+!
+flow monitor TE-MONITOR
+ record TE-RECORD
+ exporter TE-EXPORTER
+ cache timeout active 60
+!
+end</code></pre>
+
+  <h3>Step 3: Apply the Flow Monitor to WAN Interfaces</h3>
+  <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>configure terminal
+!
+interface GigabitEthernet0/0/0
+ description WAN Interface
+ ip flow monitor TE-MONITOR input
+ ip flow monitor TE-MONITOR output
+!
+end
+write memory</code></pre>
+
+  <h3>Step 4: Verify Flow Export</h3>
+  <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>show flow monitor TE-MONITOR statistics
+show flow exporter TE-EXPORTER statistics</code></pre>
+  <p>Confirm that flow records are being collected and exported. The ThousandEyes agent will begin processing flow data and forwarding it to the ThousandEyes cloud.</p>
+
+  <h2>Viewing Traffic Insights in ThousandEyes</h2>
+  <div class="step"><span class="step-num">1</span><div class="step-content"><p>In the ThousandEyes portal, navigate to <strong>Traffic Insights</strong> from the left navigation.</p></div></div>
+  <div class="step"><span class="step-num">2</span><div class="step-content"><p>Select the agent/site to view traffic analytics including top talkers, application distribution, and traffic volume trends.</p></div></div>
+  <div class="step"><span class="step-num">3</span><div class="step-content"><p>Use filters to drill into specific time ranges, source/destination pairs, or application categories.</p></div></div>
+
+  <div class="callout tip">
+    <span class="icon">&#128161;</span>
+    <div><div class="callout-title">SE Tip: Traffic Insights Value</div><div class="callout-body">Traffic Insights is a powerful complement to synthetic tests. While tests tell you <em>"can my users reach this service?"</em>, Traffic Insights tells you <em>"what are my users actually accessing and how much bandwidth are they consuming?"</em> Together they provide full-stack WAN observability.</div></div>
+  </div>
+</div>
+<div id="phase4">
+  <div class="phase-banner">
+    <span class="phase-tag p4">Phase 4</span>
+    <h1>Recommended Testing</h1>
+    <p>Configure network, application, and DNS monitoring tests for branch-to-data-center and branch-to-cloud visibility.</p>
+  </div>
+
+  <p>In the ThousandEyes portal, navigate to <strong>Network &amp; App Synthetics &gt; Test Settings</strong> and click <strong>Start Monitoring</strong>. The following test configurations provide comprehensive monitoring for a typical branch deployment.</p>
+
+  <h2>Test 1: Branch to Data Center — Agent-to-Server</h2>
+  <div class="card">
+    <h3>Use Case</h3>
+    <p>Monitor the network path from a branch router to the data center gateway or WAN concentrator. Detects latency spikes, packet loss, routing changes, and path outages on the primary WAN connection.</p>
+    <h3>Configuration</h3>
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Test Type</td><td>Agent to Server</td><td>Network category</td></tr>
+        <tr><td>Test Name</td><td><em>Branch-[Site] to DC-[Name] Network</em></td><td>Descriptive naming convention</td></tr>
+        <tr><td>Target</td><td>DC gateway IP or loopback</td><td>e.g., 10.0.0.1 or dc-gw.company.com</td></tr>
+        <tr><td>Protocol</td><td>TCP port 443 (recommended)</td><td>TCP traverses firewalls better than ICMP</td></tr>
+        <tr><td>Interval</td><td>5 minutes</td><td>1 unit per interval per agent</td></tr>
+        <tr><td>Agents</td><td>Select router Enterprise Agent(s)</td><td>Branch router agents deployed in Phase 2</td></tr>
+        <tr><td>Path Trace</td><td>Enabled (default)</td><td>Provides hop-by-hop path visualization</td></tr>
+        <tr><td>Alerts</td><td>Enable default + custom thresholds</td><td>Set loss &gt; 1%, latency &gt; baseline + 50%</td></tr>
+      </tbody>
+    </table>
+    <h3>What You Get</h3>
+    <ul>
+      <li><strong>End-to-end metrics:</strong> packet loss, latency, jitter, and path MTU</li>
+      <li><strong>Path Visualization:</strong> hop-by-hop traceroute with IPs, MPLS labels, and ASN data</li>
+      <li><strong>BGP visibility</strong> (if BGP tests enabled): routing change detection</li>
+    </ul>
+  </div>
+
+  <h2>Test 2: Branch to Cloud/SaaS — HTTP Server</h2>
+  <div class="card">
+    <h3>Use Case</h3>
+    <p>Monitor availability and performance of critical SaaS applications from the branch perspective. Validates both direct internet access (DIA) and backhauled paths to cloud services.</p>
+    <h3>Configuration</h3>
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Test Type</td><td>HTTP Server</td><td>Web category</td></tr>
+        <tr><td>Test Name</td><td><em>Branch-[Site] to [App] HTTP</em></td><td>e.g., "Branch-NYC to M365 HTTP"</td></tr>
+        <tr><td>URL</td><td>Target application URL</td><td>e.g., https://outlook.office365.com, https://login.salesforce.com</td></tr>
+        <tr><td>Interval</td><td>5 minutes</td><td>1 unit per interval per agent</td></tr>
+        <tr><td>Agents</td><td>Select router Enterprise Agent(s)</td><td>Multiple branch agents for cross-site comparison</td></tr>
+        <tr><td>Network Measurements</td><td>Enabled</td><td>Adds latency, loss, and path visualization</td></tr>
+        <tr><td>SSL Verification</td><td>Enabled (default)</td><td>Validates certificate chain integrity</td></tr>
+        <tr><td>Alerts</td><td>Enable availability &lt; 100%, response time &gt; 2s</td><td>Customize per application SLA</td></tr>
+      </tbody>
+    </table>
+    <h3>Recommended SaaS Targets</h3>
+    <table>
+      <thead><tr><th>Application</th><th>Test URL</th><th>Protocol Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Microsoft 365</td><td>https://outlook.office365.com</td><td>Tests Exchange Online reachability</td></tr>
+        <tr><td>Microsoft Teams</td><td>https://teams.microsoft.com</td><td>Tests Teams web client path</td></tr>
+        <tr><td>Salesforce</td><td>https://login.salesforce.com</td><td>Tests Salesforce login endpoint</td></tr>
+        <tr><td>ServiceNow</td><td>https://[instance].service-now.com</td><td>Replace with customer instance</td></tr>
+        <tr><td>AWS Console</td><td>https://console.aws.amazon.com</td><td>Tests AWS management plane</td></tr>
+        <tr><td>Azure Portal</td><td>https://portal.azure.com</td><td>Tests Azure management plane</td></tr>
+        <tr><td>Webex</td><td>https://web.webex.com</td><td>Tests Webex collaboration platform</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Test 3: DNS Server Monitoring</h2>
+  <div class="card">
+    <h3>Use Case</h3>
+    <p>Validate DNS resolution from branch sites to ensure internal domains resolve correctly and public DNS is performant. Critical for split-horizon DNS environments.</p>
+    <h3>Configuration</h3>
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Test Type</td><td>DNS Server</td><td>DNS category</td></tr>
+        <tr><td>Domain</td><td>Critical internal or external domain</td><td>e.g., intranet.company.com, www.google.com</td></tr>
+        <tr><td>DNS Servers</td><td>Internal DNS + public fallback</td><td>e.g., 10.0.0.53, 8.8.8.8</td></tr>
+        <tr><td>Interval</td><td>5 minutes</td><td>1 unit per interval per agent</td></tr>
+        <tr><td>Network Measurements</td><td>Enabled</td><td>Monitors path to DNS servers</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Test 4: Voice/Video Quality — Agent-to-Agent (Optional)</h2>
+  <div class="card">
+    <h3>Use Case</h3>
+    <p>Measure real-time voice and video quality between branch sites or between branch and data center. Uses RTP-based testing to calculate MOS scores.</p>
+    <h3>Configuration</h3>
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Test Type</td><td>Agent to Agent</td><td>Voice category (RTP Stream)</td></tr>
+        <tr><td>Target Agent</td><td>Enterprise Agent at DC or remote branch</td><td>Both endpoints must be Enterprise Agents</td></tr>
+        <tr><td>Codec</td><td>G.711 (default)</td><td>Matches most UC deployments</td></tr>
+        <tr><td>Interval</td><td>5 minutes</td><td>1 unit per interval per agent</td></tr>
+        <tr><td>Alerts</td><td>MOS &lt; 3.5, loss &gt; 1%, jitter &gt; 30ms</td><td>Standard voice quality thresholds</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout tip">
+    <span class="icon">&#128161;</span>
+    <div><div class="callout-title">SE Tip: Starter Test Package</div><div class="callout-body">For a quick-win deployment, recommend this starter set per branch: <strong>1x Agent-to-Server</strong> (to data center), <strong>2x HTTP Server</strong> (top SaaS apps like M365 and Salesforce), and <strong>1x DNS Server</strong> (internal DNS). This consumes approximately 4 units per round (20 units/month at 5-min intervals) and demonstrates immediate value across network, web, and DNS layers.</div></div>
+  </div>
+</div>
+<div id="phase5">
+  <div class="phase-banner">
+    <span class="phase-tag p5">Phase 5</span>
+    <h1>SD-WAN Overlay &amp; Underlay Monitoring</h1>
+    <p>Configure ThousandEyes to monitor both the SD-WAN overlay tunnels and the underlying transport network.</p>
+  </div>
+
+  <p>Cisco SD-WAN operates on two layers: the <strong>overlay</strong> (IPsec/GRE tunnels between WAN Edge routers) and the <strong>underlay</strong> (the physical transport — MPLS, broadband, LTE). ThousandEyes provides visibility into both, enabling rapid fault isolation between provider issues and overlay configuration problems.</p>
+
+  <h2>Understanding Overlay vs. Underlay</h2>
+  <table>
+    <thead><tr><th>Layer</th><th>What It Is</th><th>ThousandEyes Visibility</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Overlay</strong></td><td>SD-WAN IPsec/GRE tunnels between WAN Edge routers</td><td>Agent-to-Agent tests between Enterprise Agents on routers for end-to-end tunnel performance measurement</td></tr>
+      <tr><td><strong>Underlay</strong></td><td>Physical transport (MPLS, broadband, 4G/5G) between sites</td><td>Agent-to-Server tests targeting ISP gateways, MPLS PE routers, or internet endpoints; Path Visualization shows per-hop underlay performance</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Monitoring the SD-WAN Overlay</h2>
+  <p>The overlay is the encrypted tunnel fabric that SD-WAN builds between sites. Monitoring it reveals tunnel-level performance and helps detect issues like tunnel flaps, asymmetric routing, or overlay congestion.</p>
+
+  <h3>Method 1: Agent-to-Agent Tests (Active Probing)</h3>
+  <div class="card">
+    <p>Create Agent-to-Agent tests between Enterprise Agents deployed on WAN Edge routers at different sites. This measures the end-to-end overlay performance as experienced by the SD-WAN fabric.</p>
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Test Type</td><td>Agent to Agent</td><td>Network category</td></tr>
+        <tr><td>Source Agent</td><td>Branch router agent</td><td>e.g., Branch-NYC-Agent</td></tr>
+        <tr><td>Target Agent</td><td>Hub/DC router agent</td><td>e.g., DC-Dallas-Agent</td></tr>
+        <tr><td>Protocol</td><td>TCP (recommended)</td><td>Traverses SD-WAN overlay like real traffic</td></tr>
+        <tr><td>Port</td><td>49153 (default) or custom</td><td>Ensure port is reachable across overlay</td></tr>
+        <tr><td>Direction</td><td>Both directions</td><td>Measures bidirectional performance</td></tr>
+        <tr><td>Interval</td><td>2 or 5 minutes</td><td>Lower interval for critical hub-spoke paths</td></tr>
+        <tr><td>Throughput</td><td>Enable (optional)</td><td>Measures available bandwidth across overlay</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Monitoring the SD-WAN Underlay</h2>
+  <p>The underlay is the physical transport that carries the encrypted SD-WAN tunnels. Monitoring it helps identify whether performance issues originate from the ISP/carrier, the local last mile, or the SD-WAN overlay itself.</p>
+
+  <h3>Method 1: Agent-to-Server Tests to ISP/Transport Targets</h3>
+  <div class="card">
+    <p>Create Agent-to-Server tests targeting known underlay endpoints to measure raw transport performance independent of the SD-WAN overlay.</p>
+    <table>
+      <thead><tr><th>Target Type</th><th>Example Target</th><th>What It Reveals</th></tr></thead>
+      <tbody>
+        <tr><td>ISP Gateway / Next Hop</td><td>ISP PE router IP</td><td>Last-mile and ISP backbone performance</td></tr>
+        <tr><td>MPLS PE Router</td><td>Provider PE loopback IP</td><td>MPLS transport quality</td></tr>
+        <tr><td>Public Internet Endpoint</td><td>8.8.8.8 or well-known SaaS IP</td><td>End-to-end internet path quality</td></tr>
+        <tr><td>Regional Cloud Gateway</td><td>AWS/Azure regional endpoint</td><td>Cloud on-ramp performance</td></tr>
+      </tbody>
+    </table>
+    <p>Configure each as an <strong>Agent-to-Server</strong> test with TCP protocol and 5-minute intervals. Enable Path Visualization to see every hop in the underlay path.</p>
+  </div>
+
+  <h3>Method 2: Path Visualization Analysis</h3>
+  <div class="card">
+    <p>ThousandEyes Path Visualization on any test automatically maps the underlay path, showing:</p>
+    <ul>
+      <li><strong>Every router hop</strong> between the branch agent and the target</li>
+      <li><strong>Per-hop latency and loss</strong> to pinpoint degradation at specific network segments</li>
+      <li><strong>MPLS labels</strong> revealing the provider's internal routing decisions</li>
+      <li><strong>ASN transitions</strong> showing where traffic crosses between networks</li>
+      <li><strong>Link-layer changes</strong> that indicate rerouting or failover events</li>
+    </ul>
+  </div>
+
+  <div class="callout tip">
+    <span class="icon">&#128161;</span>
+    <div><div class="callout-title">SE Tip: Overlay + Underlay Correlation</div><div class="callout-body">The real power is correlating overlay and underlay data. When an Agent-to-Agent test (overlay) shows degradation, check the Agent-to-Server underlay tests for the same timeframe. If the underlay is also degraded, the issue is with the transport provider. If the underlay is clean but the overlay is impacted, investigate SD-WAN policy, tunnel configuration, or encryption overhead.</div></div>
+  </div>
+
+  <h2>Recommended Monitoring Matrix</h2>
+  <table>
+    <thead><tr><th>Monitoring Goal</th><th>Test Type</th><th>Source</th><th>Target</th><th>Layer</th></tr></thead>
+    <tbody>
+      <tr><td>Branch to DC connectivity</td><td>Agent-to-Agent</td><td>Branch agent</td><td>DC agent</td><td>Overlay</td></tr>
+      <tr><td>Branch to branch connectivity</td><td>Agent-to-Agent</td><td>Branch A agent</td><td>Branch B agent</td><td>Overlay</td></tr>
+      <tr><td>ISP/transport quality</td><td>Agent-to-Server</td><td>Branch agent</td><td>ISP gateway IP</td><td>Underlay</td></tr>
+      <tr><td>MPLS circuit quality</td><td>Agent-to-Server</td><td>Branch agent</td><td>MPLS PE IP</td><td>Underlay</td></tr>
+      <tr><td>Internet DIA quality</td><td>Agent-to-Server</td><td>Branch agent</td><td>8.8.8.8 or SaaS IP</td><td>Underlay</td></tr>
+      <tr><td>SaaS application health</td><td>HTTP Server</td><td>Branch agent</td><td>SaaS URL</td><td>End-to-end</td></tr>
+      <tr><td>DNS infrastructure</td><td>DNS Server</td><td>Branch agent</td><td>DNS server IPs</td><td>End-to-end</td></tr>
+      <tr><td>Traffic flow analysis</td><td>Traffic Insights</td><td>NetFlow/IPFIX</td><td>All flows</td><td>Both</td></tr>
+    </tbody>
+  </table>
+</div>
+<div id="phase6">
+  <div class="phase-banner">
+    <span class="phase-tag p6">Phase 6</span>
+    <h1>Validate and Next Steps</h1>
+    <p>Confirm everything is working and plan for expanded monitoring.</p>
+  </div>
+
+  <h2>Validation Checklist</h2>
+  <div class="card">
+    <ul class="checklist" id="validation-checklist">
+      <li><input type="checkbox" onchange="updateProgress()"><span>Enterprise Agent(s) appear in ThousandEyes portal under Cloud &amp; Enterprise Agents &gt; Agent Settings</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>Agent status shows "Online" with green indicator</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>Agent-to-Server test to data center shows data with path visualization</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>HTTP Server test(s) to SaaS applications show availability and timing data</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>DNS Server test shows successful resolution with expected IPs</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>Traffic Insights shows flow data from the router (if configured)</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>SD-WAN overlay tests (Agent-to-Agent) show bidirectional metrics</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>SD-WAN underlay tests show path visualization with per-hop data</span></li>
+      <li><input type="checkbox" onchange="updateProgress()"><span>Alert rules are active and notification channels configured</span></li>
+    </ul>
+  </div>
+
+  <h2>Recommended Next Steps</h2>
+  <ul>
+    <li>Walk the customer through dashboard views (Overview, Path Visualization, Table view)</li>
+    <li>Create a <strong>custom dashboard</strong> with widgets for WAN health, SaaS performance, and DNS status</li>
+    <li>Configure <strong>alert notifications</strong> (email, Slack, PagerDuty, ServiceNow webhooks)</li>
+    <li>Set up <strong>Snapshot Sharing</strong> so the customer can share test results with ISPs for troubleshooting</li>
+    <li>Explore <strong>ThousandEyes + Catalyst Center / SD-WAN Manager</strong> embedded views for unified operations</li>
+    <li>Deploy agents on additional routers at other branch sites for broader coverage</li>
+    <li>Add <strong>Web Transaction tests</strong> for multi-step application workflows (e.g., login flows)</li>
+    <li>Enable <strong>Internet Insights</strong> for macro-level outage detection across ISPs and cloud providers</li>
+  </ul>
+
+  <h2>Troubleshooting Quick Reference</h2>
+  <table>
+    <thead><tr><th>Symptom</th><th>Likely Cause</th><th>Resolution</th></tr></thead>
+    <tbody>
+      <tr><td>Agent not appearing in portal</td><td>Incorrect token or blocked TCP 443</td><td>Verify token, check ACLs/firewall, confirm DNS resolves <code>*.thousandeyes.com</code></td></tr>
+      <tr><td>Agent shows "Offline"</td><td>Container crashed or resource exhaustion</td><td>Run <code>show app-hosting list</code>, restart if needed, check router memory/CPU</td></tr>
+      <tr><td>Tests show no data</td><td>Agent networking misconfigured</td><td>Verify VPG interface is up, default route from agent container, and upstream routing includes VPG subnet</td></tr>
+      <tr><td>Path Visualization incomplete</td><td>ICMP blocked on path</td><td>Some hops may not respond to traceroute; this is normal for firewall-filtered segments</td></tr>
+      <tr><td>Traffic Insights no flow data</td><td>NetFlow export misconfigured</td><td>Verify flow exporter stats with <code>show flow exporter statistics</code>, confirm agent port 2055 open</td></tr>
+    </tbody>
+  </table>
+</div>
+<div id="resources">
+  <div class="phase-banner">
+    <h1>Resource Links</h1>
+    <p>Official documentation, tutorials, and demos for Cisco router ThousandEyes deployments.</p>
+  </div>
+
+  <h2>Agent Deployment — Cisco Routers</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/global-vantage-points/enterprise-agents/installing/cisco-devices/catalyst-routers" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Enterprise Agents on Catalyst Routers</div>
+      <div class="rc-desc">Official ThousandEyes documentation for router agent deployment</div>
+    </a>
+    <a class="resource-card" href="https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/prog/configuration/1718/b-1718-programmability-cg/m_1718_prog_thousandeyes.html" target="_blank">
+      <div class="rc-type">Cisco Docs</div>
+      <div class="rc-title">IOS-XE ThousandEyes Configuration Guide</div>
+      <div class="rc-desc">Cisco programmability guide for ThousandEyes on IOS-XE 17.18</div>
+    </a>
+    <a class="resource-card" href="https://demo.thousandeyes.com/player/?demoId=0c4dc4c4-d68a-4003-8dfa-e304711d42e4&showGuide=true&showGuidesToolbar=true&showHotspots=true" target="_blank">
+      <div class="rc-type">Interactive Demo</div>
+      <div class="rc-title">Deploy TE Agent via SD-WAN Manager</div>
+      <div class="rc-desc">Hands-on interactive walkthrough of the SD-WAN Manager deployment workflow</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/global-vantage-points/enterprise-agents/installing/cisco-devices/installation-methods/installing-enterprise-agents-on-cisco-switches-with-docker" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Enterprise Agents Docker Installation</div>
+      <div class="rc-desc">Docker-based agent installation for Cisco devices</div>
+    </a>
+  </div>
+
+  <h2>SD-WAN Manager</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://www.cisco.com/site/us/en/products/networking/wan/sd-wan-manager/index.html" target="_blank">
+      <div class="rc-type">Product</div>
+      <div class="rc-title">Cisco SD-WAN Manager</div>
+      <div class="rc-desc">Product overview for Cisco SD-WAN Manager (formerly vManage)</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/integration-guides/cisco-sd-wan" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">ThousandEyes SD-WAN Integration</div>
+      <div class="rc-desc">Integration guide for ThousandEyes with Cisco SD-WAN</div>
+    </a>
+  </div>
+
+  <h2>Traffic Insights</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/traffic-insights/traffic-insights-configuration-guide/configuring-traffic-monitors-via-sd-wan" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Configuring Traffic Monitors via SD-WAN</div>
+      <div class="rc-desc">Official guide for setting up Traffic Insights with SD-WAN traffic monitoring</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/traffic-insights" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Traffic Insights Documentation</div>
+      <div class="rc-desc">Complete Traffic Insights product documentation</div>
+    </a>
+  </div>
+
+  <h2>Test Configuration</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/tests" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">ThousandEyes Tests Documentation</div>
+      <div class="rc-desc">Complete test configuration reference</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/getting-started/getting-started-with-cloud-and-enterprise-agent-tests" target="_blank">
+      <div class="rc-type">Getting Started</div>
+      <div class="rc-title">Getting Started with Agent Tests</div>
+      <div class="rc-desc">Beginner guide to creating monitoring tests</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/tests/working-with-test-settings" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Working with Test Settings</div>
+      <div class="rc-desc">Detailed test configuration options</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/tests/dns-tests" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">DNS Tests Documentation</div>
+      <div class="rc-desc">DNS test types and configuration</div>
+    </a>
+  </div>
+
+  <h2>User Management &amp; Account Setup</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/getting-started/getting-started-with-account-setup" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Getting Started with Account Setup</div>
+      <div class="rc-desc">Account setup and user onboarding</div>
+    </a>
+    <a class="resource-card" href="https://docs.thousandeyes.com/product-documentation/user-management/rbac" target="_blank">
+      <div class="rc-type">Docs</div>
+      <div class="rc-title">Role-Based Access Control</div>
+      <div class="rc-desc">Managing user roles and permissions</div>
+    </a>
+  </div>
+</div>
+
+</div><!-- .content -->
+</div><!-- .main -->
+
+<script>
+function switchTab(e, tabId) {
+  const container = e.target.closest('.tabs').parentElement;
+  container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  container.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  container.querySelector('#' + tabId).classList.add('active');
+}
+function copyCode(btn) {
+  const code = btn.parentElement.querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+function updateProgress() {
+  const boxes = document.querySelectorAll('.checklist input[type="checkbox"]');
+  const checked = document.querySelectorAll('.checklist input[type="checkbox"]:checked');
+  const pct = boxes.length ? Math.round((checked.length / boxes.length) * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+const sections = ['overview','phase1','phase2','phase3','phase4','phase5','phase6','resources'];
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY + 120;
+  let current = sections[0];
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= scrollY) current = id;
+  });
+  document.querySelectorAll('.sidebar a').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+document.querySelectorAll('.sidebar a').forEach(a => {
+  a.addEventListener('click', () => {
+    if (window.innerWidth <= 900) document.querySelector('.sidebar').classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
