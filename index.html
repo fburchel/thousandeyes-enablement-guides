@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThousandEyes Enablement Guides</title>
+<style>
+  :root {
+    --cisco-blue: #049FD9;
+    --dark-blue: #1B3A5C;
+    --accent-green: #6CC04A;
+    --light-bg: #F7F9FB;
+    --card-bg: #FFFFFF;
+    --text: #2D3748;
+    --text-muted: #718096;
+    --border: #E2E8F0;
+    --header-h: 64px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: var(--text); background: var(--light-bg); line-height: 1.65; }
+
+  .site-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); background: var(--dark-blue); z-index: 100; display: flex; align-items: center; padding: 0 24px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+  .site-header .logo { display: flex; align-items: center; gap: 14px; }
+  .site-header .logo-icon { width: 56px; height: 30px; }
+  .site-header .logo-text { color: #fff; font-size: 13px; font-weight: 600; letter-spacing: .3px; text-transform: uppercase; opacity: .85; }
+  .site-header .title { color: #fff; font-size: 18px; font-weight: 700; margin-left: 20px; }
+  .site-header .title span { color: var(--cisco-blue); }
+
+  .hero { margin-top: var(--header-h); background: linear-gradient(135deg, var(--dark-blue) 0%, #0D2137 100%); padding: 80px 32px 70px; text-align: center; }
+  .hero h1 { color: #fff; font-size: 38px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.5px; }
+  .hero h1 span { color: var(--cisco-blue); }
+  .hero p { color: rgba(255,255,255,.7); font-size: 17px; max-width: 620px; margin: 0 auto; line-height: 1.7; }
+
+  .guides-section { max-width: 960px; margin: -40px auto 0; padding: 0 24px 80px; position: relative; z-index: 10; }
+
+  .guide-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 32px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,.06); display: flex; align-items: flex-start; gap: 24px; transition: all .2s ease; text-decoration: none; color: var(--text); cursor: pointer; }
+  .guide-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.1); border-color: var(--cisco-blue); text-decoration: none; }
+
+  .guide-icon { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 26px; }
+  .guide-icon.switch { background: #DBEAFE; }
+  .guide-icon.router { background: #D1FAE5; }
+  .guide-icon.endpoint { background: #EDE9FE; }
+
+  .guide-info { flex: 1; }
+  .guide-info h2 { font-size: 20px; color: var(--dark-blue); margin-bottom: 8px; border: none; padding: 0; }
+  .guide-info p { color: var(--text-muted); font-size: 14.5px; line-height: 1.6; margin-bottom: 12px; }
+
+  .guide-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; padding: 4px 10px; border-radius: 4px; background: var(--light-bg); color: var(--text-muted); }
+
+  .guide-arrow { color: var(--cisco-blue); font-size: 22px; align-self: center; flex-shrink: 0; opacity: 0; transition: opacity .2s; }
+  .guide-card:hover .guide-arrow { opacity: 1; }
+
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); }
+
+  @media (max-width: 640px) {
+    .hero { padding: 60px 20px 50px; }
+    .hero h1 { font-size: 28px; }
+    .guide-card { flex-direction: column; gap: 16px; padding: 24px; }
+    .guide-arrow { display: none; }
+    .guides-section { padding: 0 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">
+    <span class="logo-text">Cisco ThousandEyes</span>
+  </div>
+  <span class="title">Enablement <span>Guides</span></span>
+</header>
+
+<section class="hero">
+  <h1>ThousandEyes <span>Enablement Guides</span></h1>
+  <p>Step-by-step deployment and configuration guides for Cisco SE teams enabling ThousandEyes across customer environments.</p>
+</section>
+
+<section class="guides-section">
+
+  <a class="guide-card" href="catalyst-guide.html">
+    <div class="guide-icon switch">&#9000;</div>
+    <div class="guide-info">
+      <h2>Catalyst 9000 Switch Deployment</h2>
+      <p>Enterprise Agent deployment on Catalyst 9300, 9400, and 9500 series switches using Application Hosting with AppGigabitEthernet interfaces.</p>
+      <div class="guide-tags">
+        <span class="tag">Catalyst 9K</span>
+        <span class="tag">App Hosting</span>
+        <span class="tag">Enterprise Agent</span>
+      </div>
+    </div>
+    <span class="guide-arrow">&#8594;</span>
+  </a>
+
+  <a class="guide-card" href="router-guide.html">
+    <div class="guide-icon router">&#9881;</div>
+    <div class="guide-info">
+      <h2>Cisco Router Deployment</h2>
+      <p>Enterprise Agent deployment on Catalyst 8000, ISR, and ASR routers via CLI or SD-WAN Manager, including Traffic Insights and overlay/underlay monitoring.</p>
+      <div class="guide-tags">
+        <span class="tag">Catalyst 8K</span>
+        <span class="tag">ISR / ASR</span>
+        <span class="tag">SD-WAN</span>
+        <span class="tag">Traffic Insights</span>
+      </div>
+    </div>
+    <span class="guide-arrow">&#8594;</span>
+  </a>
+
+  <a class="guide-card" href="endpoint-guide.html">
+    <div class="guide-icon endpoint">&#128187;</div>
+    <div class="guide-info">
+      <h2>Endpoint Agent Deployment</h2>
+      <p>Endpoint Agent deployment across user devices for monitoring end-user experience, network performance, and application reachability.</p>
+      <div class="guide-tags">
+        <span class="tag">Endpoint Agent</span>
+        <span class="tag">User Experience</span>
+        <span class="tag">Browser Sessions</span>
+      </div>
+    </div>
+    <span class="guide-arrow">&#8594;</span>
+  </a>
+
+</section>
+
+<footer class="footer">
+  Cisco ThousandEyes SE Enablement &middot; For internal and partner use
+</footer>
+
+</body>
+</html>
